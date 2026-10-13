@@ -47,6 +47,9 @@ open NoteDeck.app
 | `shortcut` | `name` | macOS 단축어 실행 |
 | `keystroke` | `key`, `mods` | 키 입력 (cmd/alt/ctrl/shift). 손쉬운 사용 권한 필요 |
 | `notify` | `title`, `message` | macOS 알림 |
+| `display_sleep` | — | Mac 모니터 끄기(`pmset displaysleepnow`). Mac 화면이 꺼지면 폰 화면도 검게(CC 116) |
+| `display_wake` | — | Mac 모니터 켜기 |
+| `phone_screen` | `on` | 폰 화면만 검게/복귀 |
 
 예: 한 버튼으로 USB 출력 전환 + 알림
 ```json
@@ -66,6 +69,7 @@ open NoteDeck.app
 - 버튼 누름: Note On (벨로시티 > 0). Note Off는 무시.
 - 슬라이더: Control Change, 값 0~127.
 - 채널은 설정에서 고정하지 않으면 무시.
+- CC 116 (Mac→폰): 0 = 폰 화면 검게, 1 = 복귀. Mac 모니터가 꺼지고 켜질 때 자동으로 보내며, 화면이 꺼진 동안 폰 버튼을 누르면 Mac 모니터를 깨운다.
 - CC 119: 동기화 요청. 폰이 연결 직후 보내면 Mac이 전체 상태(피드백)를 다시 보낸다. 트리거로 쓰지 않는다.
 
 ## 테스트 (폰 없이)

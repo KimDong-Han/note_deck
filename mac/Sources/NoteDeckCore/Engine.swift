@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 
 /// Wires config + MIDI + audio + actions, and pushes feedback (active output / mute / volume) to the phone.
 public final class Engine {
@@ -16,9 +17,34 @@ public final class Engine {
     private var lastSentVolume: Int = -1
     private var lastSentNotes: [Int: Bool] = [:]
 
-    public init() { runner = ActionRunner(audio: audio) }
+    /// Mac -> phone: CC 116, 0 = black out the phone screen, 1 = wake it.
+    public static let phoneScreenCC = 116
+    public private(set) var screensAsleep = false
+
+    public init() {
+        runner = ActionRunner(audio: audio)
+        runner.onPhoneScreen = { [weak self] on in self?.setPhoneScreen(on: on) }
+    }
+
+    public func setPhoneScreen(on: Bool) {
+        midi.cc(Engine.phoneScreenCC, on ? 1 : 0)
+        Log.info("phone screen -> \(on ? "on" : "off")")
+    }
+
+    private func observeDisplaySleep() {
+        let nc = NSWorkspace.shared.notificationCenter
+        nc.addObserver(forName: NSWorkspace.screensDidSleepNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.screensAsleep = true
+            self?.setPhoneScreen(on: false)
+        }
+        nc.addObserver(forName: NSWorkspace.screensDidWakeNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.screensAsleep = false
+            self?.setPhoneScreen(on: true)
+        }
+    }
 
     public func start() {
+        observeDisplaySleep()
         reloadConfig()
         audio.onChange = { [weak self] in self?.sendFeedback(); self?.onStatusChanged?() }
         audio.startListening()
@@ -56,6 +82,9 @@ public final class Engine {
         guard let t = config.effectiveTriggers[key] else { Log.info("no trigger for \(key)"); lastEvent = "\(key) (매핑 없음)"; onStatusChanged?(); return }
         lastEvent = "\(key) → \(t.name ?? "")" + (value.map { " [\($0)]" } ?? "")
         Log.info("trigger \(key) '\(t.name ?? "")' value=\(value.map(String.init) ?? "-")")
+        if screensAsleep && !t.actions.contains(where: { $0.type == "display_sleep" }) {
+            runner.run(Config.Action(type: "display_wake"), value: nil)
+        }
         runner.run(t.actions, value: value)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in self?.sendFeedback(); self?.onStatusChanged?() }
     }
@@ -109,9 +138,13 @@ public final class Engine {
 
     /// Queue one button's image; chunks go out one at a time, each after the phone's ACK.
     public func pushImage(note: Int) {
-        if var t = transfer, t.note == note {        // phone asked again -> it never got the start; restart
+        if transfer?.note == note {                  // in flight: restart with the *current* image (config may have changed)
             Log.info("image for note \(note): restarting from chunk 0")
-            t.next = 0; transfer = t; sendCurrentChunk(); return
+            ackTimer?.invalidate()
+            transfer = nil
+            queue.removeAll { $0 == note }
+            queue.insert(note, at: 0)
+            startNextTransfer(); return
         }
         if queue.contains(note) { return }
         queue.append(note)

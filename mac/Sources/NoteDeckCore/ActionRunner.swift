@@ -6,6 +6,8 @@ import Carbon.HIToolbox
 /// Executes config actions. `value` is the CC value (0..127) when the trigger was a CC.
 public final class ActionRunner {
     let audio: AudioController
+    /// Set by Engine: tells the phone to black out (false) or wake (true).
+    public var onPhoneScreen: ((Bool) -> Void)?
     public init(audio: AudioController) { self.audio = audio }
 
     public func run(_ actions: [Config.Action], value: Int?) {
@@ -51,6 +53,13 @@ public final class ActionRunner {
         case "keystroke":
             guard let k = a.key else { return }
             keystroke(k, mods: a.mods ?? [])
+        case "display_sleep":
+            // Mac displays off; Engine's screensDidSleep observer then blacks out the phone too.
+            shell("/usr/bin/pmset", ["displaysleepnow"])
+        case "display_wake":
+            shell("/usr/bin/caffeinate", ["-u", "-t", "2"])
+        case "phone_screen":
+            onPhoneScreen?(a.on ?? true)
         case "notify":
             let t = (a.title ?? "Note Deck").replacingOccurrences(of: "\"", with: "\\\"")
             let m = (a.message ?? "").replacingOccurrences(of: "\"", with: "\\\"")

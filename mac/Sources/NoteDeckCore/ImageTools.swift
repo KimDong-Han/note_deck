@@ -26,15 +26,19 @@ public enum ImageTools {
     // MARK: PNG
     private static func pngData(from url: URL) -> Data? {
         guard let src = NSImage(contentsOf: url) else { return nil }
-        let size = iconSize
-        let out = NSImage(size: NSSize(width: size, height: size))
-        out.lockFocus()
+        let size = Int(iconSize)
+        // draw into an explicit 1x bitmap (lockFocus would use the Retina scale and double the payload)
+        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: size, pixelsHigh: size, bitsPerSample: 8, samplesPerPixel: 4,
+                                         hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else { return nil }
+        rep.size = NSSize(width: size, height: size)
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+        NSGraphicsContext.current?.imageInterpolation = .high
         let s = src.size
-        let scale = min(size / max(s.width, 1), size / max(s.height, 1))
+        let scale = min(CGFloat(size) / max(s.width, 1), CGFloat(size) / max(s.height, 1))
         let w = s.width * scale, h = s.height * scale
-        src.draw(in: NSRect(x: (size - w) / 2, y: (size - h) / 2, width: w, height: h), from: .zero, operation: .sourceOver, fraction: 1)
-        out.unlockFocus()
-        guard let tiff = out.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) else { return nil }
+        src.draw(in: NSRect(x: (CGFloat(size) - w) / 2, y: (CGFloat(size) - h) / 2, width: w, height: h), from: .zero, operation: .sourceOver, fraction: 1)
+        NSGraphicsContext.restoreGraphicsState()
         return rep.representation(using: .png, properties: [:])
     }
 

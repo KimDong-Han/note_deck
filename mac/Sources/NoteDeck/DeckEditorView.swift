@@ -196,6 +196,7 @@ struct ActionEditor: View {
         ("shell", "셸 명령"), ("shortcut", "단축어 실행"), ("keystroke", "키 입력"),
         ("audio_output", "출력 장치 전환"), ("audio_input", "입력 장치 전환"), ("mute_toggle", "음소거 토글"),
         ("applescript", "AppleScript"), ("notify", "알림 띄우기"),
+        ("display_sleep", "화면 끄기 (Mac + 폰)"), ("display_wake", "화면 켜기"),
     ]
 
     private var action: Config.Action { model.button(index).actions.first ?? Config.Action(type: "open_app") }
@@ -273,6 +274,8 @@ struct ActionEditor: View {
                 TextEditor(text: Binding(get: { action.script ?? "" }, set: { v in set { $0.script = v } })).frame(height: 80).font(.system(.body, design: .monospaced))
             case "notify":
                 TextField("메시지", text: Binding(get: { action.message ?? "" }, set: { v in set { $0.message = v } })).textFieldStyle(.roundedBorder)
+            case "display_sleep":
+                Text("Mac 모니터를 끄고 폰 화면도 검게 합니다. 폰을 터치하거나 Mac이 깨어나면 돌아옵니다.").font(.caption).foregroundStyle(.secondary)
             default:
                 EmptyView()
             }

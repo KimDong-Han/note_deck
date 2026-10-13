@@ -23,7 +23,7 @@ import android.util.Log
 
 class MainActivity : AppCompatActivity(), MidiLink.Listener {
 
-    companion object { const val SYNC_REQUEST_CC = 119; const val IMAGE_REQUEST_CC = 118; const val IMAGE_ACK_CC = 117 }
+    companion object { const val SYNC_REQUEST_CC = 119; const val IMAGE_REQUEST_CC = 118; const val IMAGE_ACK_CC = 117; const val PHONE_SCREEN_CC = 116 }
 
     private lateinit var status: View
     private lateinit var grid: GridLayout
@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity(), MidiLink.Listener {
     private val buttonsByNote = HashMap<Int, DeckTileView>()
     private var userDragging = false
     private val imageChunks = HashMap<Int, Array<ByteArray?>>()
+    private var blackout: View? = null
     private var lastCcSent = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +85,29 @@ class MainActivity : AppCompatActivity(), MidiLink.Listener {
             hide(WindowInsetsCompat.Type.systemBars())
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
+    }
+
+    /** "Screen off": black overlay + brightness 0 (AMOLED pixels are really off). Tap or a wake from the Mac restores it. */
+    private fun screenOff() {
+        if (blackout != null) return
+        val root = findViewById<android.view.ViewGroup>(android.R.id.content)
+        blackout = View(this).apply {
+            setBackgroundColor(0xFF000000.toInt())
+            isClickable = true
+            setOnClickListener { screenOn() }
+        }
+        root.addView(blackout, android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT)
+        window.attributes = window.attributes.apply { screenBrightness = 0f }
+        Log.i("MainActivity", "screen off")
+    }
+
+    private fun screenOn() {
+        val b = blackout ?: return
+        (b.parent as? android.view.ViewGroup)?.removeView(b)
+        blackout = null
+        window.attributes = window.attributes.apply { screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE }
+        enterFullscreen()
+        Log.i("MainActivity", "screen on")
     }
 
     override fun onDestroy() {
@@ -155,7 +179,9 @@ class MainActivity : AppCompatActivity(), MidiLink.Listener {
         when (status and 0xF0) {
             0x90 -> buttonsByNote[data1]?.let { setActive(it, data2 > 0) }
             0x80 -> buttonsByNote[data1]?.let { setActive(it, false) }
-            0xB0 -> if (config.slider?.cc == data1 && !userDragging) {
+            0xB0 -> if (data1 == PHONE_SCREEN_CC) {
+                if (data2 == 0) screenOff() else screenOn()
+            } else if (config.slider?.cc == data1 && !userDragging) {
                 slider.progress = data2
                 sliderValue.text = "${data2 * 100 / 127}%"
             }
