@@ -67,14 +67,14 @@ public struct Config: Codable, Equatable {
 
     public var midi = MIDI()
     public var feedback = Feedback()
-    /// Deck buttons sent to the phone (max 6). Missing in old configs -> defaults.
+    /// Deck buttons sent to the phone (max 9, 3x3). Missing in old configs -> defaults.
     public var buttons: [DeckButton]? = nil
     /// Extra raw triggers ("cc:7", "note:70"...) for anything outside the deck grid.
     public var triggers: [String: Trigger] = [:]
 
     public init() {}
 
-    public static let maxButtons = 6
+    public static let maxButtons = 9          // 3x3 grid; only enabled buttons are shown on the phone
     public static let firstNote = 60
     public static let volumeCC = 7
 
@@ -86,10 +86,7 @@ public struct Config: Codable, Equatable {
             DeckButton(note: 60, label: "Mac Speaker", icon: "laptop", fixed: true, actions: [out]),
             DeckButton(note: 61, label: "USB Audio", icon: "headphones", fixed: true, actions: [usb]),
             DeckButton(note: 62, label: "Mute", icon: "mute", fixed: true, actions: [mute]),
-            DeckButton(note: 63, label: "버튼 4", icon: "key", enabled: false, actions: []),
-            DeckButton(note: 64, label: "버튼 5", icon: "key", enabled: false, actions: []),
-            DeckButton(note: 65, label: "버튼 6", icon: "key", enabled: false, actions: []),
-        ]
+        ] + (4...9).map { DeckButton(note: Config.firstNote + $0 - 1, label: "버튼 \($0)", icon: "key", enabled: false, actions: []) }
     }
 
     /// Buttons padded/normalised to exactly `maxButtons`, fixed rows kept as defaults.

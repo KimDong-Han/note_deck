@@ -38,7 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc func showWindow() {
         guard let model = model else { return }
         if window == nil {
-            let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 820, height: 500),
+            let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 840, height: 580),
                              styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             w.title = "Note Deck"
             w.isReleasedWhenClosed = false

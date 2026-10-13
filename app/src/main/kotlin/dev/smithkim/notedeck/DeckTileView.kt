@@ -20,9 +20,9 @@ class DeckTileView(context: Context) : LinearLayout(context) {
         orientation = VERTICAL
         gravity = Gravity.CENTER
         isClickable = true; isFocusable = true
-        setPadding(dp(8), dp(16), dp(8), dp(16))
+        setPadding(dp(8), dp(10), dp(8), dp(10))
         setActive(false)
-        val iconSize = dp(48)
+        val iconSize = dp(44)
         image.scaleType = ImageView.ScaleType.FIT_CENTER
         addView(image, LayoutParams(iconSize, iconSize))
         glyph.textSize = 34f; glyph.gravity = Gravity.CENTER; glyph.includeFontPadding = false
@@ -30,7 +30,7 @@ class DeckTileView(context: Context) : LinearLayout(context) {
         addView(glyph, LayoutParams(LayoutParams.WRAP_CONTENT, iconSize))
         label.textSize = 16f; label.gravity = Gravity.CENTER; label.maxLines = 1
         label.setTextColor(ContextCompat.getColor(context, R.color.text))
-        addView(label, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also { it.topMargin = dp(12) })
+        addView(label, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).also { it.topMargin = dp(8) })
     }
 
     fun setLabel(text: String) { label.text = text; label.visibility = if (text.isBlank()) GONE else VISIBLE }

@@ -11,7 +11,7 @@ struct DeckEditorView: View {
             Divider()
             InspectorPane(model: model).frame(width: 340)
         }
-        .frame(minWidth: 780, minHeight: 470)
+        .frame(minWidth: 800, minHeight: 540)
     }
 }
 
@@ -31,12 +31,12 @@ struct GridPane: View {
                 Text(model.engine.outputSummary).font(.callout).foregroundStyle(.secondary)
             }
             LazyVGrid(columns: cols, spacing: 12) {
-                ForEach(0..<6, id: \.self) { i in
+                ForEach(0..<Config.maxButtons, id: \.self) { i in
                     TileView(button: model.button(i), selected: model.selected == i)
                         .onTapGesture { model.selected = i }
                 }
             }
-            Text("윗줄 3개는 동작이 고정돼 있고 이름·아이콘만 바꿀 수 있습니다. 아랫줄 3개는 자유롭게 설정합니다. 바꾸면 폰에 바로 반영됩니다.")
+            Text("윗줄 3개는 동작이 고정돼 있고 이름·아이콘만 바꿀 수 있습니다. 나머지 6개는 자유롭게 설정하고, 켠 버튼만 폰에 나타납니다(최대 3×3).")
                 .font(.caption).foregroundStyle(.secondary)
             Spacer(minLength: 0)
             LoginItemToggle()
@@ -51,10 +51,10 @@ struct TileView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            IconView(button: button, size: 40)
-            Text(button.label).font(.system(size: 13, weight: .medium)).lineLimit(1)
+            IconView(button: button, size: 34)
+            Text(button.label).font(.system(size: 12, weight: .medium)).lineLimit(1)
         }
-        .frame(maxWidth: .infinity).frame(height: 118)
+        .frame(maxWidth: .infinity).frame(height: 96)
         .background(RoundedRectangle(cornerRadius: 16).fill(Color(nsColor: .controlBackgroundColor)))
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(selected ? Color.accentColor : Color.gray.opacity(0.25), lineWidth: selected ? 2.5 : 1))
         .opacity(button.enabled ? 1 : 0.35)
