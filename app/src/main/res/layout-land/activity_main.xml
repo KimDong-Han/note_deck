@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@color/bg">
+
+    <View
+        android:id="@+id/status"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_gravity="end"
+        android:background="@drawable/dot_red"
+        android:contentDescription="@string/status_waiting" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <GridLayout
+            android:id="@+id/grid"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/sliderRow"
+            android:layout_width="96dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingVertical="12dp"
+            android:background="@drawable/bg_deck_button">
+
+            <TextView
+                android:id="@+id/sliderValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text"
+                android:textSize="16sp"
+                android:text="--" />
+
+            <dev.smithkim.notedeck.FaderView
+                android:id="@+id/slider"
+                app:vertical="true"
+                android:layout_width="56dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginVertical="8dp" />
+
+            <ImageView
+                android:id="@+id/sliderIcon"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_volume"
+                app:tint="@color/text" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

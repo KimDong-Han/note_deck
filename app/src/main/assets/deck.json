@@ -1,0 +1,10 @@
+{
+  "columns": 2,
+  "columns_land": 3,
+  "buttons": [
+    { "label": "Mac Speaker", "icon": "laptop",     "note": 60 },
+    { "label": "USB Audio",   "icon": "headphones", "note": 61 },
+    { "label": "Mute",        "icon": "mute",       "note": 62 }
+  ],
+  "slider": { "label": "Volume", "cc": 7 }
+}

@@ -1,0 +1,5 @@
+<resources>
+    <declare-styleable name="FaderView">
+        <attr name="vertical" format="boolean" />
+    </declare-styleable>
+</resources>

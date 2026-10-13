@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Note Deck</string>
+    <string name="status_waiting">USB 연결 대기 중 · USB 알림에서 MIDI를 선택하세요</string>
+    <string name="status_opening">MIDI 여는 중…</string>
+    <string name="status_connected">USB MIDI 연결됨</string>
+    <string name="status_error">MIDI 장치를 열 수 없습니다</string>
+    <string name="not_connected">Mac과 연결되지 않았습니다</string>
+</resources>
